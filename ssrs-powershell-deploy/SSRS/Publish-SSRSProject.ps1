@@ -146,19 +146,23 @@
 		$DataSource = New-SSRSDataSource -Proxy $Proxy -RdsPath $RdsPath -Folder $DataSourceFolder -Overwrite $OverwriteDataSources
 		$DataSourcePaths.Add($DataSource.Name, $DataSource.Path)
 	}
-
+	Write-Verbose "Created Datasources"
 	$DataSetPaths = @{}
 
 	foreach ($ItemGroup in $Project.Project.ItemGroup[0]) {
-		Write-Verbose $ItemGroup.DataSet.Include
-		$RsdPath = $ProjectRoot | Join-Path -ChildPath $ItemGroup.DataSet.Include
-		$DataSet = New-SSRSDataSet -Proxy $Proxy -RsdPath $RsdPath -Folder $DataSetFolder -DataSourcePaths $DataSourcePaths -Overwrite $OverwriteDatasets
-		if(-not $DataSetPaths.Contains($DataSet.Name))
-		{
-			$DataSetPaths.Add($DataSet.Name, $DataSet.Path)
-		}
-	}
 
+		for($i = 0; $i -lt $Project.Project.ItemGroup[0].DataSet.Count; $i++) {
+			$ds = $Project.Project.ItemGroup[0].DataSet[$i]
+			$RsdPath = $ProjectRoot | Join-Path -ChildPath $ds.Include
+			$DataSet = New-SSRSDataSet -Proxy $Proxy -RsdPath $RsdPath -Folder $DataSetFolder -DataSourcePaths $DataSourcePaths -Overwrite $OverwriteDatasets
+			if(-not $DataSetPaths.Contains($DataSet.Name))
+			{
+				$DataSetPaths.Add($DataSet.Name, $DataSet.Path)
+			}
+		}
+	
+	}
+	Write-Verbose "Created Datasets"
 
 	for($i = 0; $i -lt $Project.Project.ItemGroup[2].Report.Count; $i++) {
 
